@@ -180,8 +180,9 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="DSCOVR-EPIC-Image-Processing">DSCOVR EPIC Image Processing<a class="anchor-link" href="#DSCOVR-EPIC-Image-Processing">&#182;</a></h1><p>This is an overview on how to get started processing the raw data from the EPIC sensor on the DSCOVR satellite using Python.</p>
-<p>We're processing the "Level 1B" data from EPIC here, which contains calibrated and georeferenced data so we don't have to attempt to align the individual per-band images.</p>
-<p>You'll have to get the data yourself by ordering it from <a href="https://search.earthdata.nasa.gov/search/granules?p=C1282024672-LARC_ASDC&amp;m=0!-156.31940000000003!0!1!0!0%2C2&amp;tl=1452723879!4!!&amp;q=DSCOVR">here</a>. The raw files are about 175MB each.</p>
+<p>We're processing the "Level 1B" data from EPIC here, which contains calibrated and georeferenced data so we don't have to attempt to align the individual per-band images. You can also get the Level 1A data which has the least processing.</p>
+<p>You'll have to get the data yourself by "ordering" it (for free) from <a href="https://search.earthdata.nasa.gov/search/granules?p=C1282024672-LARC_ASDC&amp;m=0!-156.31940000000003!0!1!0!0%2C2&amp;tl=1452723879!4!!&amp;q=DSCOVR">here</a>, and downloading over FTP. The raw files are about 175MB each.</p>
+<p>For this example we're using an image from 2016/09/21, which you can see <a href="http://epic.gsfc.nasa.gov/epic-archive/natural/png/epic_1b_20160921201548_01.png">here with NASA's image processing</a>.</p>
 
 </div>
 </div>
@@ -354,6 +355,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>The Level 1B data has all the band images rotated and aligned, centred with the middle of the Earth at coordinates <code>[1024, 1024]</code>.</p>
 <p>Let's take a look at the individual per-band images for this dataset:</p>
 
 </div>
@@ -8342,7 +8344,9 @@ RERaOQU/ERERERGRVk7BT0REREREpJVT8BMREREREWnl/j9sIT3zJykJXwAAAABJRU5ErkJggg==
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can see that the values of individual pixels vary quite wildly (due, presumably, to the absorbtion of the filters and the sensitivity of the sensor. We can plot individual histograms:</p>
+<p>We can see that the range of pixel values vary quite wildly by band (due, presumably, to the absorbtion of the filters and the sensitivity of the sensor).</p>
+<p>Non-Earth pixels are masked out with a value of infinity in the L1B data. (They're preserved in in L1A but pretty much all you can see is cosmic rays.)</p>
+<p>We can plot individual histograms of the luminance by band:</p>
 
 </div>
 </div>
@@ -8359,6 +8363,7 @@ RERaOQU/ERERERGRVk7BT0REREREpJVT8BMREREREWnl/j9sIT3zJykJXwAAAABJRU5ErkJggg==
 <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="n">img</span><span class="p">:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="c1"># Replace infinity with 0</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">fix_invalid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="n">band</span><span class="p">][</span><span class="s1">&#39;Image&#39;</span><span class="p">]),</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="n">nonposy</span><span class="o">=</span><span class="s1">&#39;clip&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
